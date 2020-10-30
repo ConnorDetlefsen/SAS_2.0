@@ -46,35 +46,33 @@ class RideMaintenance extends Component {
         this.context.currentUser.budget = res.data.budget; //updates the context
       });
 
-    http
-      .get(config.apiEndpoint + "/rides/1") //+ this.context.currentUser.teamID)
-      .then((res) => {
-        if (res.data[0]) {
-          this.setState({
-            ride1: res.data[0],
-            waterproof1: res.data[0].waterproof,
-            //put all upgrades here
-          });
-        }
-        if (res.data[1]) {
-          this.setState({
-            ride2: res.data[1],
-            waterproof2: res.data[1].waterproof,
-          });
-        }
-        if (res.data[2]) {
-          this.setState({
-            ride3: res.data[2],
-            waterproof3: res.data[2].waterproof,
-          });
-        }
-        if (res.data[3]) {
-          this.setState({
-            ride4: res.data[3],
-            waterproof4: res.data[3].waterproof,
-          });
-        }
-      });
+    http.get(config.apiEndpoint + "/rides/" + "1").then((res) => {
+      if (res.data[0]) {
+        this.setState({
+          ride1: res.data[0],
+          waterproof1: res.data[0].waterproof,
+          //put all upgrades here
+        });
+      }
+      if (res.data[1]) {
+        this.setState({
+          ride2: res.data[1],
+          waterproof2: res.data[1].waterproof,
+        });
+      }
+      if (res.data[2]) {
+        this.setState({
+          ride3: res.data[2],
+          waterproof3: res.data[2].waterproof,
+        });
+      }
+      if (res.data[3]) {
+        this.setState({
+          ride4: res.data[3],
+          waterproof4: res.data[3].waterproof,
+        });
+      }
+    });
   }
 
   //maybe one submit button that calls 2 functions instead of both submitting here??
@@ -85,11 +83,12 @@ class RideMaintenance extends Component {
 
   ride1Submit = (e) => {
     //ride1
-    const { team, waterproof1, price } = this.state;
+    const { team, waterproof1, price, ride1 } = this.state;
 
     let amount = 0;
     if (waterproof1) {
       amount = amount + price;
+      ride1.waterproof = true;
     }
     //do this for each upgrade we have
     console.log(amount);
@@ -108,7 +107,10 @@ class RideMaintenance extends Component {
       team
     );
     //end budget check
-
+    http.put(
+      config.apiEndpoint + "/rides/" + this.context.currentUser.teamID + "/1",
+      ride1
+    );
     //put request here to ride/teamid/rideid
   };
 
@@ -117,25 +119,6 @@ class RideMaintenance extends Component {
     this.setState((initialState) => ({
       [state]: !initialState[state],
     }));
-    /*
-    let duration = this.state.duration;
-    if (this.state.buyMinutes1 === false) {
-      this.setState({ duration: duration + 4 });
-      return;
-    }
-    if (this.state.buyMinutes1 === true) {
-      this.setState({ duration: duration - 4 });
-      return;
-    }
-    if (this.state.buyMinutes2 === false) {
-      this.setState({ duration: duration + 4 });
-      return;
-    }
-    if (this.state.buyMinutes2 === true) {
-      this.setState({ duration: duration - 4 });
-      return;
-    }
-    */
   };
 
   handleDropDownChange = (e) => {

@@ -4,7 +4,10 @@ import NavBar from "../Components/NavBar";
 import UserContext from "../Context/UserContext";
 import Message from "../Components/Message";
 import { Box, Container, Grid } from "@material-ui/core";
+import MessagesCheckBox from "../Components/MessagesCheckBox";
 
+import http from "../APIServices/httpService";
+import config from "../APIServices/config.json";
 import { ToastContainer, toast } from "react-toastify";
 
 class Messages extends Component {
@@ -13,11 +16,28 @@ class Messages extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      messages: [],
+      message: "",
       new_message: "",
       errors: {},
       team: [],
+
+      yes: null,
+      no: null,
     };
+  }
+
+  async componentDidMount() {
+    http
+      .get(config.apiEndpoint + "/team/" + this.context.currentUser.teamID)
+      .then((res) => {
+        this.setState({ team: res.data });
+        this.context.currentUser.budget = res.data.budget; //updates the context
+      });
+    http
+      .get(config.apiEndpoint + "/messages/" + this.context.currentUser.teamID)
+      .then((res) => {
+        this.setState({ message: res.data });
+      });
   }
 
   handleSubmit = async (e) => {
@@ -37,6 +57,12 @@ class Messages extends Component {
       .catch((err) => {
         toast.error(`Message could not be sent `);
       }); */
+  };
+  handleCheckBoxChange = (e) => {
+    let state = e.currentTarget.attributes.stateVar.value; //this is the state var being changed by checking box
+    this.setState((initialState) => ({
+      [state]: !initialState[state],
+    }));
   };
 
   handleChange = (e) => {
@@ -73,19 +99,27 @@ class Messages extends Component {
                 <form onSubmit={this.handleSubmit}>
                   <div class="form-group">
                     <br />
-                    <Box class="columns">
-                      <Message
-                        description="Lorem ipsum dolor sit amet, at illud delicata definitionem nec. Eu vix omnium animal, ius quas fierent ad, vix omnes theophrastus ea. Nobis corpora cu sea, ne accusam officiis eum. Ne vel euismod nostrum. Latine tamquam suavitate nec at.
-Ea idque apeirian eos, vim dicat moderatius te. Vel natum solum corpora ea. Viderer tacimates qualisque et est, no ius percipit splendide mediocritatem, laudem bonorum accusam ut per. In oportere reformidans quo, et ius suscipit erroribus, novum tractatos ei vix. Quo wisi veniam id. Saepe salutandi voluptaria ad cum."
+                    <Box class="center">
+                      <Message description={this.state.message} />
+                      <MessagesCheckBox
+                        name="Yes"
+                        checked={this.state.yes}
+                        stateVar="yes"
+                        onChange={this.handleCheckBoxChange}
                       />
-                      <Message
-                        description="Lorem ipsum dolor sit amet, at illud delicata definitionem nec. Eu vix omnium animal, ius quas fierent ad, vix omnes theophrastus ea. Nobis corpora cu sea, ne accusam officiis eum. Ne vel euismod nostrum. Latine tamquam suavitate nec at.
-Ea idque apeirian eos, vim dicat moderatius te. Vel natum solum corpora ea. Viderer tacimates qualisque et est, no ius percipit splendide mediocritatem, laudem bonorum accusam ut per. In oportere reformidans quo, et ius suscipit erroribus, novum tractatos ei vix. Quo wisi veniam id. Saepe salutandi voluptaria ad cum."
+                      <br />
+                      <MessagesCheckBox
+                        name="No"
+                        checked={this.state.no}
+                        stateVar="no"
+                        onChange={this.handleCheckBoxChange}
                       />
-                      <Message
-                        description="Lorem ipsum dolor sit amet, at illud delicata definitionem nec. Eu vix omnium animal, ius quas fierent ad, vix omnes theophrastus ea. Nobis corpora cu sea, ne accusam officiis eum. Ne vel euismod nostrum. Latine tamquam suavitate nec at.
-Ea idque apeirian eos, vim dicat moderatius te. Vel natum solum corpora ea. Viderer tacimates qualisque et est, no ius percipit splendide mediocritatem, laudem bonorum accusam ut per. In oportere reformidans quo, et ius suscipit erroribus, novum tractatos ei vix. Quo wisi veniam id. Saepe salutandi voluptaria ad cum."
-                      />
+                      <textarea
+                        onChange={this.handleChange}
+                        className="form-control"
+                        rows="6"
+                        cols="10"
+                      ></textarea>
                     </Box>
                   </div>
                   <button
